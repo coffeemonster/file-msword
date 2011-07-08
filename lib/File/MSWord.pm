@@ -2,11 +2,11 @@ package File::MSWord;
 
 use strict;
 
-our $VERSION = '0.2';
+our $VERSION = '0.3.0';
 
 =head1 NAME
 
-File::MSWord
+    File::MSWord
 
 =head1 SYNOPSIS
 
@@ -23,7 +23,7 @@ File::MSWord
 
 =head1 AUTHOR
 
-Harlan Carvey, C<< <keydet89@yahoo.com> >>
+    Harlan Carvey, C<< <keydet89@yahoo.com> >>
 
 =cut
 
@@ -63,8 +63,8 @@ sub getGUID {
     my $record;
     seek($self->{hFile},0,0);
     read($self->{hFile},$record,8);
-# Returns lower and upper portions of GUID in little-endian order
-# Looks like e011cfd0 and e11ab1a1, respectively
+    # Returns lower and upper portions of GUID in little-endian order
+    # Looks like e011cfd0 and e11ab1a1, respectively
     return unpack("VV",$record);
 }
 
@@ -80,39 +80,39 @@ sub getDocBinaryData {
     my $record;
     my %doc =();
 
-# Go to beginning of FIB
+    # Go to beginning of FIB
     seek($self->{hFile},0x200,0);
     read($self->{hFile},$record,20);
-# wIdent   = magic number
-# nFib     = FIB version
-# nProduct = product version written by
-# langid   = lang ID stamp
-# pnNext
-# fDot
-# nFibBack = backwards compatibility setting
-# lkey     = encryption key, if file is encrypted
-# envr     = creation environment; 0 = Win, 1 = Mac
+    # wIdent   = magic number
+    # nFib     = FIB version
+    # nProduct = product version written by
+    # langid   = lang ID stamp
+    # pnNext
+    # fDot
+    # nFibBack = backwards compatibility setting
+    # lkey     = encryption key, if file is encrypted
+    # envr     = creation environment; 0 = Win, 1 = Mac
     ($doc{wIdent},$doc{nFib},$doc{nProduct},$doc{langid},$doc{pnNext},
         $doc{fDot},$doc{nFibBack},$doc{lKey},$doc{envr},$doc{fMac}) = unpack("v7VC2",$record);
 
     ($doc{fDot} & 0x0200) ? ($doc{table} = "1Table") : ($doc{table} = "0Table");
-# Save for later use
+    # Save for later use
     $self->{table} = $doc{table};
-# The fDot and fMac values can be parsed using flags
-# fDot & 0x0001 = doc is a template
-# fDot & 0x0002 = doc is a glossary
-# fDot & 0x0004 = doc is in complex, fast-saved format
-# fDot & 0x0008 = file contains one or more pictures
-# fDot & 0x0100 = file is encrypted
-# fDot & 0x0200 = which table stream is valid
-# fDot & 0x0400 = user has recommended that file be read-only
-# fDot & 0x0800 = file is write reserved
-# fDot & 0x8000 = file is encrypted
-#
-# fMac & 0x01 = file last saved on a Mac
-# fMac & 0x10 = file last saved on Word97
+    # The fDot and fMac values can be parsed using flags
+    # fDot & 0x0001 = doc is a template
+    # fDot & 0x0002 = doc is a glossary
+    # fDot & 0x0004 = doc is in complex, fast-saved format
+    # fDot & 0x0008 = file contains one or more pictures
+    # fDot & 0x0100 = file is encrypted
+    # fDot & 0x0200 = which table stream is valid
+    # fDot & 0x0400 = user has recommended that file be read-only
+    # fDot & 0x0800 = file is write reserved
+    # fDot & 0x8000 = file is encrypted
+    #
+    # fMac & 0x01 = file last saved on a Mac
+    # fMac & 0x10 = file last saved on Word97
 
-  return %doc;
+    return %doc;
 }
 
 #-------------------------------------------------------
@@ -262,7 +262,7 @@ sub listStreams {
     my %streams = ();
 
     my $var = OLE::Storage->NewVar();
-    my $startup = new Startup;
+    my $startup = Startup->new();
     my $doc = OLE::Storage->open($startup,$var,$self->{filename});
     my @pps = $doc->dirhandles(0);
     foreach my $pps (sort {$a <=> $b} @pps) {
@@ -300,16 +300,20 @@ sub getSummaryInfo {
     my %suminfo = ();
 
     my $var = OLE::Storage->NewVar();
-    my $startup = new Startup;
+    my $startup = Startup->new();
     my $doc = OLE::Storage->open($startup,$var,$self->{filename});
     my @pps = $doc->dirhandles(0);
     foreach my $pps (sort {$a <=> $b} @pps) {
         my $name = $doc->name($pps)->string();
         next unless ($name eq "\05SummaryInformation");
-        if (my $prop = OLE::PropertySet->load($startup,$var,$pps,$doc)) {
-            ($suminfo{title},$suminfo{subject},$suminfo{authress},$suminfo{lastauth},
-            $suminfo{revnum},$suminfo{appname},$suminfo{created},$suminfo{lastsaved},
-            $suminfo{lastprinted}) = string {$prop->property(2,3,4,8,9,18,12,13,11)};
+        if ( my $prop = OLE::PropertySet->load( $startup, $var, $pps, $doc ) ) {
+            (
+                $suminfo{title},    $suminfo{subject},
+                $suminfo{authress}, $suminfo{lastauth},
+                $suminfo{revnum},   $suminfo{appname},
+                $suminfo{created},  $suminfo{lastsaved},
+                $suminfo{lastprinted}
+            ) = string { $prop->property( 2, 3, 4, 8, 9, 18, 12, 13, 11 ) };
         }
     }
     return %suminfo;
@@ -326,7 +330,7 @@ sub getDocSummaryInfo {
     my %docsuminfo = ();
 
     my $var = OLE::Storage->NewVar();
-    my $startup = new Startup;
+    my $startup = Startup->new();
     my $doc = OLE::Storage->open($startup,$var,$self->{filename});
     my @pps = $doc->dirhandles(0);
     foreach my $pps (sort {$a <=> $b} @pps) {
@@ -357,7 +361,7 @@ sub readStreamTable {
     ($fDot & 0x0200) ? ($table = "1Table") : ($table = "0Table");
 
     my $var = OLE::Storage->NewVar();
-    my $startup = new Startup;
+    my $startup = Startup->new();
     my $doc = OLE::Storage->open($startup,$var,$self->{filename});
     my @pps = $doc->dirhandles(0);
     foreach my $pps (sort {$a <=> $b} @pps) {
@@ -384,7 +388,7 @@ sub readTrash {
                    8 => "SystemSpace");
 
     my $var = OLE::Storage->NewVar();
-    my $startup = new Startup;
+    my $startup = Startup->new();
     my $doc = OLE::Storage->open($startup,$var,$self->{filename});
 
     foreach my $type (sort {$a <=> $b} keys %trash) {
@@ -489,7 +493,7 @@ sub close {close($self->{hFile});}
 
 =head1 METHODS
 
-=head2 my $word = File::MSWord::new()
+=head2 my $word = File::MSWord->new()
 
     Creates a new $word object.
 
