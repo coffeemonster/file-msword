@@ -1,0 +1,13 @@
+README
+Changes
+MANIFEST			This list of files
+Build.PL
+Makefile.PL
+META.json
+META.yml
+lib/File/MSWord.pm
+lib/File/MSWord/Struct.pod
+t/00-file-msword.t
+t/manifest.t
+t/pod.t
+t/word.doc - from (http://teachertech.rice.edu/Materials/TeacherTECH/basics/word.doc)

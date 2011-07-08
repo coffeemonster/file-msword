@@ -1,0 +1,35 @@
+NAME
+
+    File::MSWord - Cross platform MSWord metadata parser.
+
+INSTALLATION
+
+    To install this module, run the following commands:
+
+	perl Build.PL
+	./Build
+	./Build test
+	./Build install
+
+SUPPORT AND DOCUMENTATION
+
+    After installing, you can find documentation for this module with the
+    perldoc command.
+
+        perldoc File::MSWord
+
+    You can also look for information at:
+
+        http://search.cpan.org/dist/File-MSWord
+
+
+LICENSE AND COPYRIGHT
+
+    Copyright (c) 2006 Harlan Carvey
+
+    This library is free software; you can redistribute it and/or modify it
+    as you like. However, please be sure to provide proper credit where it
+    is due.
+
+    See http://dev.perl.org/licenses/ for more information.
+

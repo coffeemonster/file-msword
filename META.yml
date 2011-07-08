@@ -1,0 +1,29 @@
+---
+abstract: 'Grab metadata from MSWord documents'
+author:
+  - 'Harlan Carvey, <keydet89@yahoo.com>'
+build_requires:
+  Test::More: 0
+configure_requires:
+  Module::Build: 0.38
+dynamic_config: 1
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110930'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: File-MSWord
+provides:
+  File::MSWord:
+    file: lib/File/MSWord.pm
+    version: 0.2
+requires:
+  Carp: 0
+  OLE::PropertySet: 0
+  OLE::Storage: 0
+  Startup: 0
+  Unicode::Map: 0
+  perl: 5.006
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.2
